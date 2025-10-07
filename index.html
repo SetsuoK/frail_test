@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>frail_test</title>
+  <!-- 必要CDN（警告は無視可） -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -12,18 +13,26 @@
 <body class="bg-gray-50">
   <div id="app"></div>
 
-  <!-- JSX をブラウザ変換。preset が必須 -->
-  <script type="text/babel" data-presets="react" src="./app.jsx?v=3"></script>
+  <!-- JSX をブラウザ変換して読み込み（Reactプリセット必須） -->
+  <script
+    type="text/babel"
+    data-presets="react"
+    src="./app.jsx?v=4"
+  ></script>
 
-  <!-- 読み込み後に描画 -->
+  <!-- JSX読み込み完了を待ってから起動する（ポーリング方式） -->
   <script>
-    (function start(){
+    (function boot(){
       const el = document.getElementById('app');
-      if (window.renderApp) return window.renderApp(el);
+      if (!el) return setTimeout(boot, 50);
+      if (window.renderApp) { window.renderApp(el); return; }
       if (window.App) {
         const root = ReactDOM.createRoot(el);
-        return root.render(React.createElement(window.App));
+        root.render(React.createElement(window.App));
+        return;
       }
+      // まだ定義されていなければ少し待って再試行
+      setTimeout(boot, 50);
     })();
   </script>
 </body>
