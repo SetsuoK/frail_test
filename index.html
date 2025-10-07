@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Assessment Demo</title>
+    <!-- Tailwind (Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React UMD -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel (on-the-fly JSX transpile) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style> html,body{background:#f7fafc} </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!-- あなたのJSX（同一リポジトリ内のファイル名に合わせる） -->
+    <script type="text/babel" src="./app.jsx"></script>
+    <script>
+      // 添付JSXは window.renderApp を提供するのでそれを呼ぶ
+      window.renderApp && window.renderApp(document.getElementById('app'));
+    </script>
+  </body>
+</html>
