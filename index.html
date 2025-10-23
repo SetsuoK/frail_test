@@ -79,12 +79,18 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 
     <!-- あなたのJSX（同一リポジトリ内のファイル名に合わせる） -->
     <script type="text/babel" src="./app.jsx"></script>
-    <script>
-      // 添付JSXは window.renderApp を提供するのでそれを呼ぶ
-      window.renderApp && window.renderApp(document.getElementById('app'));
-    </script>
+<script>
+  // JSX 側が提供する renderApp を DOM 準備完了時に呼ぶ
+  window.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.renderApp === 'function') {
+      window.renderApp();
+    }
+  });
+</script>
+
   </body>
 </html>
+
 
 
 
