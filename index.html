@@ -53,9 +53,31 @@ print("feedback_engine import OK")
 from typing import Dict, List, Any
 from feedback_engine import build_feedback
 
+def _to_py_set(x):
+    try:
+        return set(list(x))
+    except Exception:
+        return set()
+
+def _to_py_dict(x):
+    if x is None:
+        return {}
+    try:
+        return dict(x)  # JsProxy でも key/value 反復に対応していればOK
+    except Exception:
+        try:
+            # keys()/__getitem__() があるタイプ
+            return {k: x[k] for k in x.keys()}
+        except Exception:
+            return {}
+
 def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, extras: dict=None) -> str:
-    kcl_items = {i:(1 if i in set(kcl_on) else 0) for i in range(1,26)}
-    khq_items = {int(k): bool(v) for k, v in (khq_flags or {}).items()}
+    kcl_on_set = _to_py_set(kcl_on)
+    kcl_items = {i: (1 if i in kcl_on_set else 0) for i in range(1, 26)}
+
+    khq_dict = _to_py_dict(khq_flags)
+    khq_items = {int(k): bool(v) for k, v in khq_dict.items()}
+
     text = build_feedback(
         age_group=age_group,
         sex=sex,
@@ -67,6 +89,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
         extras=extras or {}
     )
     return text
+
         `);
 
         return pyodide;
@@ -97,5 +120,6 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 
   </body>
 </html>
+
 
 
