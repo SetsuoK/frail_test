@@ -1,39 +1,55 @@
 <!doctype html>
 <html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Assessment Demo</title>
+    <link rel="icon" href="data:,">
 
-<!-- Pyodide本体 -->
-<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- Tailwind (Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<script>
-  // ここ全体をコピペでOK（括弧とバッククォートは揃っています）
-  window.pyodideReady = (async () => {
-    const pyodide = await loadPyodide();
-    await pyodide.loadPackage(["micropip","pandas"]);
+    <!-- React UMD (production) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-    // 1) PythonとCSVを仮想FSへ
-    const fe = await fetch("./feedback_engine.py").then(r => r.text());
-    pyodide.FS.writeFile("feedback_engine.py", fe);   // 先頭 / なし（相対に書く）
+    <!-- Babel (on-the-fly JSX transpile) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    async function loadCsv(url, path){
-      const txt = await fetch(url).then(r => r.text());
-      pyodide.FS.writeFile(path, txt);
-    }
-    await loadCsv("./assets/feedback/templates_kcl_completed_v2.csv", "/templates_kcl_completed_v2.csv");
-    await loadCsv("./assets/feedback/templates_khq_completed_v2.completed.csv", "/templates_khq_completed_v2.completed.csv");
-    await loadCsv("./assets/feedback/safety_flags_complete.csv", "/safety_flags_complete.csv");
+    <style> html,body{background:#f7fafc} </style>
 
-    // 2) importパスを整えてから import
-    await pyodide.runPythonAsync(`
+    <!-- Pyodide本体 -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script>
+      // Pyodide 初期化（結果画面で使用）
+      window.pyodideReady = (async () => {
+        const pyodide = await loadPyodide();
+        await pyodide.loadPackage(["micropip","pandas"]);
+
+        // PythonとCSVを仮想FSへ
+        const fe = await fetch("./feedback_engine.py").then(r => r.text());
+        pyodide.FS.writeFile("feedback_engine.py", fe);
+
+        async function loadCsv(url, path){
+          const txt = await fetch(url).then(r => r.text());
+          pyodide.FS.writeFile(path, txt);
+        }
+        await loadCsv("./assets/feedback/templates_kcl_completed_v2.csv", "/templates_kcl_completed_v2.csv");
+        await loadCsv("./assets/feedback/templates_khq_completed_v2.completed.csv", "/templates_khq_completed_v2.completed.csv");
+        await loadCsv("./assets/feedback/safety_flags_complete.csv", "/safety_flags_complete.csv");
+
+        // import 準備
+        await pyodide.runPythonAsync(`
 import sys
 for p in (".","/"):
     if p not in sys.path:
         sys.path.append(p)
 import feedback_engine
 print("feedback_engine import OK")
-    `);
+        `);
 
-    // 3) JSから呼ぶPythonラッパ
-    await pyodide.runPythonAsync(`
+        // JS から呼ぶラッパ
+        await pyodide.runPythonAsync(`
 from typing import Dict, List, Any
 from feedback_engine import build_feedback
 
@@ -43,7 +59,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     text = build_feedback(
         age_group=age_group,
         sex=sex,
-        kcl_flags=kcl_items,   # ← 引数名は kcl_flags で統一
+        kcl_flags=kcl_items,
         khq_items=khq_items,
         csv_kcl_templates="/templates_kcl_completed_v2.csv",
         csv_khq_templates="/templates_khq_completed_v2.completed.csv",
@@ -51,57 +67,32 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
         extras=extras or {}
     )
     return text
-    `);
+        `);
 
-    return pyodide;
-  })();
-</script>
-
-
-
-
-  <head>
-    <link rel="icon" href="data:,">
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Assessment Demo</title>
-    <!-- Tailwind (Play CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React UMD -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel (on-the-fly JSX transpile) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style> html,body{background:#f7fafc} </style>
+        return pyodide;
+      })();
+    </script>
   </head>
+
   <body>
     <div id="app"></div>
 
-    <!-- React / ReactDOM / Babel -->
-<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- あなたの JSX（ファイル名を合わせる） -->
+    <script
+      type="text/babel"
+      data-presets="react,env"
+      src="./assessment_hybrid_mobile_white_full_umd.jsx">
+    </script>
 
-<!-- あなたの JSX -->
-<script type="text/babel" data-presets="react,env" src="./app.jsx"></script>
-
-<!-- DOM 準備後に renderApp を呼ぶ -->
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    if (typeof window.renderApp === 'function') {
-      window.renderApp();
-    } else {
-      console.error('window.renderApp が見つかりません。app.jsx 内で定義してください。');
-    }
-  });
-</script>
-
-
+    <!-- DOM 準備後に renderApp を呼ぶ -->
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        if (typeof window.renderApp === 'function') {
+          window.renderApp();
+        } else {
+          console.error('window.renderApp が見つかりません。assessment_hybrid_mobile_white_full_umd.jsx 内で定義してください。');
+        }
+      });
+    </script>
   </body>
 </html>
-
-
-
-
-
-
