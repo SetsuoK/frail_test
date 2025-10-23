@@ -569,7 +569,6 @@ function QuestionRow({ q, value, setValue }) {
       </div>
     );
   }
-
   // それ以外は未使用
   return null;
 }
@@ -903,6 +902,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
