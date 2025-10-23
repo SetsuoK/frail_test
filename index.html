@@ -85,15 +85,17 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     </script>
 
     <!-- DOM 準備後に renderApp を呼ぶ -->
-    <script>
-      window.addEventListener('DOMContentLoaded', () => {
-        if (typeof window.renderApp === 'function') {
-          window.renderApp();
-        } else {
-          console.error('window.renderApp が見つかりません。assessment_hybrid_mobile_white_full_umd.jsx 内で定義してください。');
-        }
-      });
-    </script>
+<script>
+  (function waitAndRender(){
+    if (typeof window.renderApp === 'function') {
+      window.renderApp();
+    } else {
+      setTimeout(waitAndRender, 50);
+    }
+  })();
+</script>
+
   </body>
 </html>
+
 
