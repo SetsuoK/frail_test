@@ -587,30 +587,30 @@ function ResultPanel({ answers, risks, bmi, onBack, scores, maxScores }){
   const totalRisks = sum(risks);
 
   // === Pyodideを使ってフィードバックを生成 ===
-  async function onClickGenerate() {
-    setFbLoading(true);
-    setFbText("");
-    try {
-      const kclOn = makeKclOn(answers);        // 1..25 のON配列を返すヘルパ
-      const khqFlags = makeKhqFlags(answers);  // {5:true} 等、なければ {}
-// 置き換え：generateFeedbackWithPyodide
-async function generateFeedbackWithPyodide({ age_group, sex, kclOnArray, khqFlags, extras = {} }) {
-  const pyodide = await window.pyodideReady; // 初期化待ち
-  const pyFunc = pyodide.globals.get('js_build_feedback'); // ← これが正解
-  if (!pyFunc) throw new Error('Pyodide: js_build_feedback が見つかりません');
-  const text = pyFunc(age_group, sex, kclOnArray, khqFlags, extras);
-  return String(text || "").trim();
-}
+// === Pyodideを使ってフィードバックを生成 ===
+async function onClickGenerate() {
+  setFbLoading(true);
+  setFbText("");
+  try {
+    const kclOn = makeKclOn(answers);        // 1..25 のON配列
+    const khqFlags = makeKhqFlags(answers);  // {5:true} など（なければ {}）
 
-      setFbText(txt);
-    } catch (e) {
-      console.error(e);
-      setFbText("フィードバック生成でエラーが発生しました。");
-    } finally {
-      setFbLoading(false);
-    }
+    const txt = await generateFeedbackWithPyodide({
+      age_group: "後期高齢者",
+      sex: "女",
+      kclOnArray: kclOn,
+      khqFlags: khqFlags,
+      extras: {} // 例: {"khq10_falls_count": 0}
+    });
+
+    setFbText(txt);
+  } catch (e) {
+    console.error(e);
+    setFbText("フィードバック生成でエラーが発生しました。");
+  } finally {
+    setFbLoading(false);
   }
-
+}
   useEffect(() => { onClickGenerate(); }, []);  // 初回マウント時に自動生成
 
   const hints=[];
@@ -816,16 +816,29 @@ async function generateFeedbackWithPyodide({ age_group, sex, kclOnArray, khqFlag
   );
 }
 
+// === Pyodide経由でPython関数を呼ぶラッパ（グローバル定義） ===
+async function generateFeedbackWithPyodide({ age_group, sex, kclOnArray, khqFlags, extras = {} }) {
+  const pyodide = await window.pyodideReady; // 初期化待ち
 
+  // js_build_feedback は Python 側で定義された “関数” なので globals.get で取得
+  const pyFunc = pyodide.globals.get('js_build_feedback');
+  if (!pyFunc) throw new Error('Pyodide: js_build_feedback が見つかりません');
 
+  // 呼び出し（JS配列/オブジェクトは自動変換されます）
+  const result = pyFunc(age_group, sex, kclOnArray, khqFlags, extras);
 
-// === Pyodide経由でPython関数を呼ぶラッパ ===
-async function generateFeedbackWithPyodide({ age_group, sex, kclOnArray, khqFlags, extras={} }) {
-  const pyodide = await window.pyodideReady;            // Pyodide初期化待ち
-  const py = pyodide.pyimport("js_build_feedback");     // Python関数を取得
-  const text = py(age_group, sex, kclOnArray, khqFlags, extras);
-  return String(text || "").trim();
+  // 返り値の安全な文字列化
+  const text = (result && typeof result.toString === 'function')
+    ? result.toString()
+    : String(result ?? '');
+
+  // 後片付け（PyProxy解放が可能な場合）
+  try { result && result.destroy && result.destroy(); } catch {}
+  try { pyFunc && pyFunc.destroy && pyFunc.destroy(); } catch {}
+
+  return text.trim();
 }
+
 
 /* ---------------- Viewer互換エクスポート ---------------- */
 window.App = App;
@@ -842,6 +855,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
