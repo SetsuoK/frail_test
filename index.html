@@ -1,16 +1,18 @@
 <!doctype html>
 <html lang="ja">
 
+<!-- Pyodide本体 -->
 <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+
 <script>
+  // ここ全体をコピペでOK（括弧とバッククォートは揃っています）
   window.pyodideReady = (async () => {
     const pyodide = await loadPyodide();
-    await pyodide.loadPackage(["micropip","pandas"]);  // 依存
+    await pyodide.loadPackage(["micropip","pandas"]);
 
-    // 1) PythonファイルとCSVを仮想FSに配置（←順番が重要）
+    // 1) PythonとCSVを仮想FSへ
     const fe = await fetch("./feedback_engine.py").then(r => r.text());
-    // 先頭のスラッシュ無し（カレントに書く）にするのが安全
-    pyodide.FS.writeFile("feedback_engine.py", fe);
+    pyodide.FS.writeFile("feedback_engine.py", fe);   // 先頭 / なし（相対に書く）
 
     async function loadCsv(url, path){
       const txt = await fetch(url).then(r => r.text());
@@ -20,23 +22,17 @@
     await loadCsv("./assets/feedback/templates_khq_completed_v2.completed.csv", "/templates_khq_completed_v2.completed.csv");
     await loadCsv("./assets/feedback/safety_flags_complete.csv", "/safety_flags_complete.csv");
 
-    // 2) import パス確認 → import できるか事前チェック
+    // 2) importパスを整えてから import
     await pyodide.runPythonAsync(`
-import sys, os
-# カレント('.') と '/' の両方を見に行く
-p = set(sys.path)
-p.add("/")
-p.add(".")
-sys.path = list(p)
-# デバッグ: どこにファイルがあるか表示（Consoleに出ます）
-print("cwd:", os.getcwd())
-print("listdir .:", os.listdir("."))
-print("sys.path:", sys.path)
+import sys
+for p in (".","/"):
+    if p not in sys.path:
+        sys.path.append(p)
 import feedback_engine
 print("feedback_engine import OK")
     `);
 
-    // 3) Pythonラッパを定義（ここで初めて from feedback_engine import ...）
+    // 3) JSから呼ぶPythonラッパ
     await pyodide.runPythonAsync(`
 from typing import Dict, List, Any
 from feedback_engine import build_feedback
@@ -47,7 +43,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     text = build_feedback(
         age_group=age_group,
         sex=sex,
-        kcl_flags=kcl_items,  # ← 引数名は kcl_flags に統一
+        kcl_flags=kcl_items,   # ← 引数名は kcl_flags で統一
         khq_items=khq_items,
         csv_kcl_templates="/templates_kcl_completed_v2.csv",
         csv_khq_templates="/templates_khq_completed_v2.completed.csv",
@@ -60,6 +56,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     return pyodide;
   })();
 </script>
+
 
 
 
@@ -87,5 +84,6 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     </script>
   </body>
 </html>
+
 
 
