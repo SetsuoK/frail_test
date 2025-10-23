@@ -593,13 +593,15 @@ function ResultPanel({ answers, risks, bmi, onBack, scores, maxScores }){
     try {
       const kclOn = makeKclOn(answers);        // 1..25 のON配列を返すヘルパ
       const khqFlags = makeKhqFlags(answers);  // {5:true} 等、なければ {}
-      const txt = await generateFeedbackWithPyodide({
-        age_group: "後期高齢者",
-        sex: "女",
-        kclOnArray: kclOn,
-        khqFlags: khqFlags,
-        extras: {} // 例: {"khq10_falls_count": 0}
-      });
+// 置き換え：generateFeedbackWithPyodide
+async function generateFeedbackWithPyodide({ age_group, sex, kclOnArray, khqFlags, extras = {} }) {
+  const pyodide = await window.pyodideReady; // 初期化待ち
+  const pyFunc = pyodide.globals.get('js_build_feedback'); // ← これが正解
+  if (!pyFunc) throw new Error('Pyodide: js_build_feedback が見つかりません');
+  const text = pyFunc(age_group, sex, kclOnArray, khqFlags, extras);
+  return String(text || "").trim();
+}
+
       setFbText(txt);
     } catch (e) {
       console.error(e);
@@ -840,6 +842,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
