@@ -52,6 +52,7 @@ print("feedback_engine import OK")
         await pyodide.runPythonAsync(`
 from typing import Dict, List, Any
 from feedback_engine import build_feedback
+import inspect
 
 def _to_py_set(x):
     try:
@@ -63,33 +64,51 @@ def _to_py_dict(x):
     if x is None:
         return {}
     try:
-        return dict(x)  # JsProxy でも key/value 反復に対応していればOK
+        return dict(x)
     except Exception:
         try:
-            # keys()/__getitem__() があるタイプ
             return {k: x[k] for k in x.keys()}
         except Exception:
             return {}
 
 def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, extras: dict=None) -> str:
+    # JS -> Py に変換
     kcl_on_set = _to_py_set(kcl_on)
     kcl_items = {i: (1 if i in kcl_on_set else 0) for i in range(1, 26)}
-
     khq_dict = _to_py_dict(khq_flags)
-    khq_items = {int(k): bool(v) for k, v in khq_dict.items()}
 
-    text = build_feedback(
-        age_group=age_group,
-        sex=sex,
-        kcl_flags=kcl_items,
-        khq_items=khq_items,
-        csv_kcl_templates="/templates_kcl_completed_v2.csv",
-        csv_khq_templates="/templates_khq_completed_v2.completed.csv",
-        csv_safety_flags="/safety_flags_complete.csv",
-        extras=extras or {}
-    )
+    # build_feedback の受け取り可能な引数名を自動検出
+    sig = inspect.signature(build_feedback)
+    params = set(sig.parameters.keys())
+
+    kcl_key_candidates = ['kcl_flags', 'kcl_items', 'kcl', 'flags_kcl']
+    khq_key_candidates = ['khq_items', 'khq_flags', 'khq']
+
+    kcl_key = next((n for n in kcl_key_candidates if n in params), None)
+    khq_key = next((n for n in khq_key_candidates if n in params), None)
+
+    kwargs = {
+        'age_group': age_group,
+        'sex': sex,
+    }
+    if kcl_key:
+        kwargs[kcl_key] = kcl_items
+    if khq_key:
+        kwargs[khq_key] = {int(k): bool(v) for k, v in khq_dict.items()}
+
+    # CSV パスは存在するキーにだけ渡す
+    csv_args = {
+        'csv_kcl_templates': "/templates_kcl_completed_v2.csv",
+        'csv_khq_templates': "/templates_khq_completed_v2.completed.csv",
+        'csv_safety_flags': "/safety_flags_complete.csv",
+        'extras': extras or {}
+    }
+    for k, v in csv_args.items():
+        if k in params:
+            kwargs[k] = v
+
+    text = build_feedback(**kwargs)
     return text
-
         `);
 
         return pyodide;
@@ -120,6 +139,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 
   </body>
 </html>
+
 
 
 
