@@ -1,39 +1,72 @@
 <!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>frail_test</title>
-  <!-- 必要CDN（警告は無視可） -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
-<body class="bg-gray-50">
-  <div id="app"></div>
 
-  <!-- JSX をブラウザ変換して読み込み（Reactプリセット必須） -->
-  <script
-    type="text/babel"
-    data-presets="react"
-    src="./app.jsx?v=4"
-  ></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+<script>
+  // Pyodideをシングルトンで初期化
+  window.pyodideReady = (async () => {
+    const pyodide = await loadPyodide();
+    await pyodide.loadPackage(["micropip", "pandas"]);
+    // 1) Pythonコードを仮想FSに配置（feedback_engine.py をフェッチして書き込む）
+    const fe = await fetch("./feedback_engine.py").then(r=>r.text());
+    pyodide.FS.writeFile("/feedback_engine.py", fe);
 
-  <!-- JSX読み込み完了を待ってから起動する（ポーリング方式） -->
-  <script>
-    (function boot(){
-      const el = document.getElementById('app');
-      if (!el) return setTimeout(boot, 50);
-      if (window.renderApp) { window.renderApp(el); return; }
-      if (window.App) {
-        const root = ReactDOM.createRoot(el);
-        root.render(React.createElement(window.App));
-        return;
-      }
-      // まだ定義されていなければ少し待って再試行
-      setTimeout(boot, 50);
-    })();
-  </script>
-</body>
+    // 2) CSV を配置
+    async function loadCsv(url, path){
+      const txt = await fetch(url).then(r=>r.text());
+      pyodide.FS.writeFile(path, txt);
+    }
+    await loadCsv("./assets/feedback/templates_kcl_completed_v2.csv", "/templates_kcl_completed_v2.csv");
+    await loadCsv("./assets/feedback/templates_khq_completed_v2.completed.csv", "/templates_khq_completed_v2.completed.csv");
+    await loadCsv("./assets/feedback/safety_flags_complete.csv", "/safety_flags_complete.csv");
+
+    // 3) Python側のラッパー関数を定義
+    await pyodide.runPythonAsync(`
+from typing import Dict, List, Any
+from feedback_engine import build_feedback
+
+def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, extras: dict=None) -> str:
+    # JSから来た kcl_on を 1..25 の ON/OFF dict に変換
+    kcl_items = {i:(1 if i in set(kcl_on) else 0) for i in range(1,26)}
+    khq_items = {int(k): bool(v) for k, v in (khq_flags or {}).items()}
+    text = build_feedback(
+        age_group=age_group,
+        sex=sex,
+        kcl_flags=kcl_items,
+        khq_items=khq_items,
+        csv_kcl_templates="/templates_kcl_completed_v2.csv",
+        csv_khq_templates="/templates_khq_completed_v2.completed.csv",
+        csv_safety_flags="/safety_flags_complete.csv",
+        extras=extras or {}
+    )
+    return text
+    `);
+    return pyodide;
+  })();
+</script>
+
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Assessment Demo</title>
+    <!-- Tailwind (Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React UMD -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel (on-the-fly JSX transpile) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style> html,body{background:#f7fafc} </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!-- あなたのJSX（同一リポジトリ内のファイル名に合わせる） -->
+    <script type="text/babel" src="./app.jsx"></script>
+    <script>
+      // 添付JSXは window.renderApp を提供するのでそれを呼ぶ
+      window.renderApp && window.renderApp(document.getElementById('app'));
+    </script>
+  </body>
 </html>

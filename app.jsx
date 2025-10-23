@@ -118,6 +118,46 @@ function calcBMI(h_cm, w_kg){
   if(!h || !w) return null;
   return +(w/(h*h)).toFixed(1);
 }
+
+// KCL 質問ID → 標準 1..25 の番号へマップ
+const KCL_ID_TO_NO = {
+  "KCL-1":1, "KCL-2":2, "KCL-3":3, "KCL-4":4, "KCL-5":5,
+  "KCL-6":6, "KCL-7A":7, "KCL-8A":8,
+  "KCL-8B":9,              // 転倒歴
+  "KCL-10":10, "KCL-11":11,
+  "KCL-12":12,             // 食習慣（+ 低BMIもここに寄与）
+  "KCL-13":13, "KCL-14":14, "KCL-15":15,
+  "KCL-16":16, "KCL-17":17, "KCL-18":18, "KCL-19":19, "KCL-20":20,
+  "KCL-21":21, "KCL-22":22, "KCL-23":23, "KCL-24":24, "KCL-25":25,
+};
+
+// 回答 → kclOn配列（1..25）へ
+function makeKclOn(answers){
+  const on = [];
+  for(const q of QUESTIONS){
+    if(!(q.id in KCL_ID_TO_NO)) continue;
+    const v = answers[q.id];
+    if(v==null || v==="") continue;
+    if(typeof q.mapRisk==="function" && q.mapRisk(v, answers)){
+      on.push(KCL_ID_TO_NO[q.id]);
+    }
+  }
+  // 低BMIも #12 に寄与
+  const bmiV = answers["LQ-BMI"];
+  const bmi = calcBMI(bmiV?.height_cm, bmiV?.weight_kg);
+  if(bmi && bmi < 18.5) on.push(12);
+
+  return Array.from(new Set(on)).sort((a,b)=>a-b);
+}
+
+// KHQ フラグ（今は未使用なら空でOK）
+function makeKhqFlags(_answers){
+  return {}; // 例: {5:true} を立てたいときだけ実装
+}
+
+
+
+
 function bySections(list){
   const map={}; list.forEach(q=>{ (map[q.section]=map[q.section]||[]).push(q); });
   return Object.entries(map).map(([name,items])=>({name,items}));
@@ -579,7 +619,34 @@ function AnswerSummaryTable({ title, questionIds, allQuestions, answers }) {
 
 function ResultPanel({ answers, risks, bmi, onBack, scores, maxScores }){
   const [resultView, setResultView] = useState('summary'); // 'summary', 'kcl_answers', or 'lq_answers'
+  const [fbText, setFbText] = useState("");
+  const [fbLoading, setFbLoading] = useState(false);
   const totalRisks = sum(risks);
+
+  // === Pyodideを使ってフィードバックを生成 ===
+  async function onClickGenerate() {
+    setFbLoading(true);
+    setFbText("");
+    try {
+      const kclOn = makeKclOn(answers);        // 1..25 のON配列を返すヘルパ
+      const khqFlags = makeKhqFlags(answers);  // {5:true} 等、なければ {}
+      const txt = await generateFeedbackWithPyodide({
+        age_group: "後期高齢者",
+        sex: "女",
+        kclOnArray: kclOn,
+        khqFlags: khqFlags,
+        extras: {} // 例: {"khq10_falls_count": 0}
+      });
+      setFbText(txt);
+    } catch (e) {
+      console.error(e);
+      setFbText("フィードバック生成でエラーが発生しました。");
+    } finally {
+      setFbLoading(false);
+    }
+  }
+
+  useEffect(() => { onClickGenerate(); }, []);  // 初回マウント時に自動生成
 
   const hints=[];
   if((risks["運動"]||0)>=3) hints.push("運動の項目に複数の注意。転倒予防の運動や短時間の散歩から始めましょう。");
@@ -748,12 +815,29 @@ function ResultPanel({ answers, risks, bmi, onBack, scores, maxScores }){
 
       {/* ヒント */}
       {hints.length>0 && (
-        <div className="bg-gray-50 p-3 rounded-lg border border-gray-300 mb-3">
-          <div className="text-sm mb-2">ヒント（自己管理の例）</div>
-          <ul className="list-disc pl-5 text-[12px] text-gray-700 space-y-1">
-            {hints.map((h,i)=><li key={i}>{h}</li>)}
-          </ul>
-        </div>
+<div className="bg-white rounded-xl border p-3 mt-3">
+  <div className="text-sm font-semibold mb-2">ヒント（自己管理の例）</div>
+
+  {/* フィードバック表示（優先） */}
+  {fbText ? (
+    // 段落そのまま表示
+    <div className="text-[13px] whitespace-pre-wrap leading-6">
+      {fbText}
+    </div>
+  ) : fbLoading ? (
+    <div className="text-[13px] text-gray-500">生成中です…</div>
+  ) : (
+    // まだ生成していない場合の既存デフォルト
+    <ul className="list-disc pl-5 text-[13px] leading-6">
+      <li>運動の項目に複数の注意。転倒予防の運動や短時間の散歩から始めましょう。</li>
+      <li>口腔の項目に注意あり。むせ・咀嚼の変化が続く場合は早めの相談を。</li>
+      <li>認知の変化が見られます。生活リズムやコミュニケーションの工夫を。</li>
+      <li>気分面の負担が示唆されます。相談窓口の活用や日中活動を増やす工夫を。</li>
+      <li>喫煙は健康リスクと関連します。禁煙支援の活用をご検討ください。</li>
+    </ul>
+  )}
+</div>
+
       )}
 
       {/* 操作 */}
@@ -765,6 +849,17 @@ function ResultPanel({ answers, risks, bmi, onBack, scores, maxScores }){
       </div>
     </div>
   );
+}
+
+
+
+
+// === Pyodide経由でPython関数を呼ぶラッパ ===
+async function generateFeedbackWithPyodide({ age_group, sex, kclOnArray, khqFlags, extras={} }) {
+  const pyodide = await window.pyodideReady;            // Pyodide初期化待ち
+  const py = pyodide.pyimport("js_build_feedback");     // Python関数を取得
+  const text = py(age_group, sex, kclOnArray, khqFlags, extras);
+  return String(text || "").trim();
 }
 
 /* ---------------- Viewer互換エクスポート ---------------- */
