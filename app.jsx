@@ -865,9 +865,18 @@ async function generateFeedbackWithPyodide({ age_group, sex, kclOnArray, khqFlag
 /* ---------------- Viewer互換エクスポート ---------------- */
 window.App = App;
 window.renderApp = function(mountEl){
-  const el = mountEl || document.getElementById("root") || document.getElementById("app") ||
-    (()=>{ const d=document.createElement("div"); d.id="app"; document.body.appendChild(d); return d; })();
+  const el = mountEl
+    || document.getElementById("app")
+    || document.getElementById("root")
+    || (() => {
+         const d = document.createElement("div");
+         d.id = "app";
+         document.body.appendChild(d);
+         return d;
+       })();
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
+
 
