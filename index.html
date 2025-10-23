@@ -20,6 +20,14 @@
     await loadCsv("./assets/feedback/templates_khq_completed_v2.completed.csv", "/templates_khq_completed_v2.completed.csv");
     await loadCsv("./assets/feedback/safety_flags_complete.csv", "/safety_flags_complete.csv");
 
+    // 2) Python の import パスに "/" を足す → その後に import
+　　await pyodide.runPythonAsync(`
+    import sys
+    if "/" not in sys.path：
+      sys.path.append("/")
+    );
+
+await pyodide.runPythonAsync(`import feedback_engine`);
     // 3) Python側のラッパー関数を定義
     await pyodide.runPythonAsync(`
 from typing import Dict, List, Any
@@ -70,3 +78,4 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     </script>
   </body>
 </html>
+
