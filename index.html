@@ -77,19 +77,29 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
   <body>
     <div id="app"></div>
 
-    <!-- あなたのJSX（同一リポジトリ内のファイル名に合わせる） -->
-    <script type="text/babel" src="./app.jsx"></script>
+    <!-- React / ReactDOM / Babel -->
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- あなたの JSX -->
+<script type="text/babel" data-presets="react,env" src="./app.jsx"></script>
+
+<!-- DOM 準備後に renderApp を呼ぶ -->
 <script>
-  // JSX 側が提供する renderApp を DOM 準備完了時に呼ぶ
   window.addEventListener('DOMContentLoaded', () => {
     if (typeof window.renderApp === 'function') {
       window.renderApp();
+    } else {
+      console.error('window.renderApp が見つかりません。app.jsx 内で定義してください。');
     }
   });
 </script>
 
+
   </body>
 </html>
+
 
 
 
