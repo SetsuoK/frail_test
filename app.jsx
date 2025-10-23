@@ -441,9 +441,9 @@ function App(){
 }
 
 /* ---------------- UI部品 ---------------- */
-function QuestionRow({ q, value, setValue }){
-  if(q.type==="bool"){
-    const v=value||"";
+function QuestionRow({ q, value, setValue }) {
+  if (q.type === "bool") {
+    const v = value || "";
     return (
       <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
         <div className="text-[13px] mb-2">{q.text}</div>
@@ -458,8 +458,9 @@ function QuestionRow({ q, value, setValue }){
       </div>
     );
   }
-  if(q.type==="choice"){
-    const v=value||"";
+
+  if (q.type === "choice") {
+    const v = value || "";
     return (
       <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
         <div className="text-[13px] mb-2">{q.text}</div>
@@ -474,125 +475,54 @@ function QuestionRow({ q, value, setValue }){
       </div>
     );
   }
+
   if (q.type === "group" && q.id === "LQ-BMI") {
-  const v = value || {};
-  const bmi = calcBMI(v.height_cm, v.weight_kg);
+    const v = value || {};
+    const bmi = calcBMI(v.height_cm, v.weight_kg);
 
-  // +/- ボタンで値を0.5刻みで変更
-  const handleValueChange = (field, amount) => {
-    const defaultValue = field === 'height_cm' ? 160 : 50;
-    const currentVal = parseFloat(v[field]) || defaultValue;
-    let newVal = currentVal + amount;
-    newVal = Math.max(0, newVal);
-    // 小数1桁固定
-    const fixed = Number(newVal.toFixed(1));
-    setValue(q.id, { ...v, [field]: fixed });
-  };
-
-  return (
-    <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
-      <div className="text-[13px] mb-2">{q.text}</div>
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm w-16">身長(cm)</span>
-          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', -0.5)}>-</button>
-          <input
-            className="w-20 px-2 py-1 border rounded"
-            value={v.height_cm ?? ""}
-            onChange={e => setValue(q.id, { ...v, height_cm: Number(e.target.value) || "" })}
-            placeholder="160"
-          />
-          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', 0.5)}>+</button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm w-16">体重(kg)</span>
-          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', -0.5)}>-</button>
-          <input
-            className="w-20 px-2 py-1 border rounded"
-            value={v.weight_kg ?? ""}
-            onChange={e => setValue(q.id, { ...v, weight_kg: Number(e.target.value) || "" })}
-            placeholder="50"
-          />
-          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', 0.5)}>+</button>
-        </div>
-      </div>
-      <div className="text-[12px] text-gray-600 mt-2">
-        BMI: {bmi ?? "-"}
-      </div>
-    </div>
-  );
-}
-
+    // +/- 0.5刻み
+    const handleValueChange = (field, amount) => {
+      const def = field === 'height_cm' ? 160 : 50;
+      const cur = parseFloat(v[field]) || def;
+      const next = Math.max(0, cur + amount);
+      setValue(q.id, { ...v, [field]: Number(next.toFixed(1)) });
+    };
 
     return (
       <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
         <div className="text-[13px] mb-2">{q.text}</div>
-        <div className="grid grid-cols-2 gap-3">
-          {/* 身長入力 */}
-          <div>
-            <div className="text-[11px] text-gray-500 mb-1">身長 (cm)</div>
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => handleValueChange('height_cm', -0.5)}
-                className="px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 hover:bg-gray-100 focus:outline-none"
-              >
-                -
-              </button>
-              <input
-                type="number"
-                inputMode="decimal"
-                step="0.1"
-                placeholder="160.0"
-                className="w-full bg-white border-t border-b border-gray-300 px-2 py-2 text-sm text-center appearance-none focus:outline-none"
-                style={{ MozAppearance: 'textfield' }}
-                value={v.height_cm||""}
-                onChange={e=> setValue(q.id, {...v, height_cm:e.target.value})}
-              />
-              <button
-                type="button"
-                onClick={() => handleValueChange('height_cm', 0.5)}
-                className="px-3 py-2 border border-gray-300 rounded-r-lg bg-gray-50 hover:bg-gray-100 focus:outline-none"
-              >
-                +
-              </button>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm w-16">身長(cm)</span>
+            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', -0.5)}>-</button>
+            <input
+              className="w-20 px-2 py-1 border rounded"
+              value={v.height_cm ?? ""}
+              onChange={e => setValue(q.id, { ...v, height_cm: Number(e.target.value) || "" })}
+              placeholder="160"
+            />
+            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', 0.5)}>+</button>
           </div>
-          {/* 体重入力 */}
-          <div>
-            <div className="text-[11px] text-gray-500 mb-1">体重 (kg)</div>
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => handleValueChange('weight_kg', -0.5)}
-                className="px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 hover:bg-gray-100 focus:outline-none"
-              >
-                -
-              </button>
-              <input
-                type="number"
-                inputMode="decimal"
-                step="0.1"
-                placeholder="50.0"
-                className="w-full bg-white border-t border-b border-gray-300 px-2 py-2 text-sm text-center appearance-none focus:outline-none"
-                style={{ MozAppearance: 'textfield' }}
-                value={v.weight_kg||""}
-                onChange={e=> setValue(q.id, {...v, weight_kg:e.target.value})}
-              />
-              <button
-                type="button"
-                onClick={() => handleValueChange('weight_kg', 0.5)}
-                className="px-3 py-2 border border-gray-300 rounded-r-lg bg-gray-50 hover:bg-gray-100 focus:outline-none"
-              >
-                +
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm w-16">体重(kg)</span>
+            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', -0.5)}>-</button>
+            <input
+              className="w-20 px-2 py-1 border rounded"
+              value={v.weight_kg ?? ""}
+              onChange={e => setValue(q.id, { ...v, weight_kg: Number(e.target.value) || "" })}
+              placeholder="50"
+            />
+            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', 0.5)}>+</button>
           </div>
         </div>
-        <div className="text-[11px] text-gray-600 mt-2">BMI: {bmi ?? "-"}</div>
+        <div className="text-[12px] text-gray-600 mt-2">
+          BMI: {bmi ?? "-"}
+        </div>
       </div>
     );
   }
+
+  // それ以外の型は今は未使用
   return null;
 }
 
@@ -910,6 +840,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
