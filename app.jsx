@@ -476,50 +476,53 @@ function QuestionRow({ q, value, setValue }) {
     );
   }
 
-  if (q.type === "group" && q.id === "LQ-BMI") {
-    const v = value || {};
-    const bmi = calcBMI(v.height_cm, v.weight_kg);
+if (q.type === "group" && q.id === "LQ-BMI") {
+  const v = value || {};
+  const bmi = calcBMI(v.height_cm, v.weight_kg);
 
-    // +/- 0.5刻み
-    const handleValueChange = (field, amount) => {
-      const def = field === 'height_cm' ? 160 : 50;
-      const cur = parseFloat(v[field]) || def;
-      const next = Math.max(0, cur + amount);
-      setValue(q.id, { ...v, [field]: Number(next.toFixed(1)) });
-    };
+  const handleValueChange = (field, amount) => {
+    const def = field === 'height_cm' ? 160 : 50;
+    const cur = parseFloat(v[field]) || def;
+    const next = Math.max(0, cur + amount);
+    setValue(q.id, { ...v, [field]: Number(next.toFixed(1)) });
+  };
 
-    return (
-      <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
-        <div className="text-[13px] mb-2">{q.text}</div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm w-16">身長(cm)</span>
-            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', -0.5)}>-</button>
-            <input
-              className="w-20 px-2 py-1 border rounded"
-              value={v.height_cm ?? ""}
-              onChange={e => setValue(q.id, { ...v, height_cm: Number(e.target.value) || "" })}
-              placeholder="160"
-            />
-            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', 0.5)}>+</button>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm w-16">体重(kg)</span>
-            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', -0.5)}>-</button>
-            <input
-              className="w-20 px-2 py-1 border rounded"
-              value={v.weight_kg ?? ""}
-              onChange={e => setValue(q.id, { ...v, weight_kg: Number(e.target.value) || "" })}
-              placeholder="50"
-            />
-            <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', 0.5)}>+</button>
-          </div>
+  return (
+    <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
+      <div className="text-[13px] mb-2">{q.text}</div>
+
+      {/* 👇 ここを flex-wrap に変更（幅が足りなければ自動で折り返す） */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-sm w-14">身長(cm)</span>
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', -0.5)}>-</button>
+          <input
+            className="w-20 px-2 py-1 border rounded"
+            value={v.height_cm ?? ""}
+            onChange={e => setValue(q.id, { ...v, height_cm: Number(e.target.value) || "" })}
+            placeholder="160"
+          />
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', 0.5)}>+</button>
         </div>
-        <div className="text-[12px] text-gray-600 mt-2">
-          BMI: {bmi ?? "-"}
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm w-14">体重(kg)</span>
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', -0.5)}>-</button>
+          <input
+            className="w-20 px-2 py-1 border rounded"
+            value={v.weight_kg ?? ""}
+            onChange={e => setValue(q.id, { ...v, weight_kg: Number(e.target.value) || "" })}
+            placeholder="50"
+          />
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', 0.5)}>+</button>
         </div>
       </div>
-    );
+
+      <div className="text-[12px] text-gray-600 mt-2">BMI: {bmi ?? "-"}</div>
+    </div>
+  );
+}
+
   }
 
   // それ以外の型は今は未使用
@@ -855,6 +858,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
