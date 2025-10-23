@@ -474,22 +474,55 @@ function QuestionRow({ q, value, setValue }){
       </div>
     );
   }
-  if(q.type==="group" && q.id==="LQ-BMI"){
-    const v=value||{};
-    const bmi = calcBMI(v.height_cm, v.weight_kg);
+  if (q.type === "group" && q.id === "LQ-BMI") {
+  const v = value || {};
+  const bmi = calcBMI(v.height_cm, v.weight_kg);
 
-    // +/- ボタンで値を0.5刻みで変更するハンドラ
-    const handleValueChange = (field, amount) => {
-        // 現在の値を取得。空の場合はデフォルト値を設定
-        const defaultValue = field === 'height_cm' ? 160 : 50;
-        const currentVal = parseFloat(v[field]) || defaultValue;
-        
-        let newVal = currentVal + amount;
-        newVal = Math.max(0, newVal); // 0未満にならないようにする
-        
-        // toFixed(1)で小数点第一位までに丸める
-        setValue(q.id, { ...v, [field]: newVal.toFixed(1) });
-    };
+  // +/- ボタンで値を0.5刻みで変更
+  const handleValueChange = (field, amount) => {
+    const defaultValue = field === 'height_cm' ? 160 : 50;
+    const currentVal = parseFloat(v[field]) || defaultValue;
+    let newVal = currentVal + amount;
+    newVal = Math.max(0, newVal);
+    // 小数1桁固定
+    const fixed = Number(newVal.toFixed(1));
+    setValue(q.id, { ...v, [field]: fixed });
+  };
+
+  return (
+    <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
+      <div className="text-[13px] mb-2">{q.text}</div>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-sm w-16">身長(cm)</span>
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', -0.5)}>-</button>
+          <input
+            className="w-20 px-2 py-1 border rounded"
+            value={v.height_cm ?? ""}
+            onChange={e => setValue(q.id, { ...v, height_cm: Number(e.target.value) || "" })}
+            placeholder="160"
+          />
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('height_cm', 0.5)}>+</button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm w-16">体重(kg)</span>
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', -0.5)}>-</button>
+          <input
+            className="w-20 px-2 py-1 border rounded"
+            value={v.weight_kg ?? ""}
+            onChange={e => setValue(q.id, { ...v, weight_kg: Number(e.target.value) || "" })}
+            placeholder="50"
+          />
+          <button className="px-2 py-1 border rounded" onClick={() => handleValueChange('weight_kg', 0.5)}>+</button>
+        </div>
+      </div>
+      <div className="text-[12px] text-gray-600 mt-2">
+        BMI: {bmi ?? "-"}
+      </div>
+    </div>
+  );
+}
+
 
     return (
       <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
@@ -877,6 +910,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
