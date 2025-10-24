@@ -641,7 +641,7 @@ async function onClickGenerate() {
   try {
     const kclOn = makeKclOn(answers);        // 1..25 のON配列
     const khqFlags = makeKhqFlags(answers);  // {5:true} など（なければ {}）
-
+    + console.log("[JS] khqFlags before call:", khqFlags);
     const txt = await generateFeedbackWithPyodide({
       age_group: "後期高齢者",
       sex: "女",
@@ -902,6 +902,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
