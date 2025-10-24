@@ -9,6 +9,29 @@ const { useState, useEffect, useMemo } = React;
 /* ---------------- 質問定義（全31問） ---------------- */
 const QUESTIONS = [
   // --- プロフィール（LQ: 健康状態/満足度/BMI）---
+{
+  id: "LQ-AGEGROUP",
+  section: "プロフィール",
+  domain: "年齢区分",
+  text: "あなたの年齢区分を選択してください。",
+  type: "choice",
+  required: true,
+  options: [
+    "青年期（19歳以上〜40歳未満）",
+    "壮年期（40歳以上〜65歳未満）",
+    "前期高齢者（65歳以上〜75歳未満）",
+    "後期高齢者（75歳以上）"
+  ]
+},
+   {
+  id: "LQ-SEX",
+  section: "プロフィール",
+  domain: "性別",
+  text: "あなたの性別を教えてください。",
+  type: "choice",
+  required: true,
+  options: ["男", "女"]
+},
   {
     id: "LQ-HEALTH",
     section: "プロフィール", domain: "健康状態",
@@ -902,6 +925,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
