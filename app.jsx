@@ -666,8 +666,10 @@ async function onClickGenerate() {
     const khqFlags = makeKhqFlags(answers);  // {5:true} など（なければ {}）
     + console.log("[JS] khqFlags before call:", khqFlags);
     const txt = await generateFeedbackWithPyodide({
-      age_group: "後期高齢者",
-      sex: "女",
+    age_group: (answers["LQ-AGEGROUP"] || "後期高齢者")
+                .replace(/[（）]/g, " ")  // カッコ除去（念のため）
+                .split(" ")[0],           // 「青年期（…」→「青年期」
+     sex: answers["LQ-SEX"] || "女",
       kclOnArray: kclOn,
       khqFlags: khqFlags,
       extras: {} // 例: {"khq10_falls_count": 0}
@@ -840,6 +842,8 @@ async function onClickGenerate() {
       <div className="bg-gray-50 p-3 rounded-lg border border-gray-300 mb-3 mt-4">
         <div className="text-sm mb-2">プロフィール概要</div>
         <ul className="text-[12px] text-gray-700 space-y-1">
+          <li>年齢区分: {answers["LQ-AGEGROUP"] || "-"}</li>
+          <li>性別: {answers["LQ-SEX"] || "-"}</li>
           <li>健康状態: {answers["LQ-HEALTH"]||"-"}</li>
           <li>生活満足度: {answers["LQ-SATIS"]||"-"}</li>
           <li>BMI: {bmi ?? "-"}</li>
@@ -925,6 +929,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
