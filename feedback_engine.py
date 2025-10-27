@@ -59,6 +59,22 @@ def alias_metric(mt: str, repo_df) -> str:
 
     return mt
 
+def _normalize_khq_flags(khq_raw: Dict[Any, Any]) -> Dict[int, bool]:
+    """
+    JSXから来た KHQ フラグ（例: "LQ-HEALTH", "KCL-12", "HB-008" など）を
+    Python側の想定（intキー）に正規化する。
+    末尾の連番を拾い、bool化して返す（拾えないキーは無視）。
+    """
+    out: Dict[int, bool] = {}
+    for k, v in (khq_raw or {}).items():
+        if not v:
+            continue
+        m = re.search(r'(\d+)$', str(k))
+        if not m:
+            continue
+        idx = int(m.group(1))
+        out[idx] = bool(v)
+    return out
 
 @dataclass
 class AssessmentInput:
@@ -321,6 +337,22 @@ def build_feedback(
     csv_safety_flags: str,
     extras: Optional[Dict[str, Any]] = None
 ) -> str:
+
+        # --- ここで受け取れたかをまず可視化 ---
+    try:
+        print("[PY] age_group:", age_group)
+        print("[PY] sex:", sex)
+        print("[PY] kcl_items(sample):", dict(list(kcl_items.items())[:8]))
+        print("[PY] khq_items(raw):", khq_items)
+        print("[PY] extras:", extras)
+    except Exception as e:
+        print("[PY] debug print error:", e)
+
+    # --- KHQキーの正規化（文字ID→末尾の連番に）---
+    khq_items = _normalize_khq_flags(khq_items)
+    print("[PY] khq_items(normalized int keys):", khq_items)
+    ##########################################
+    
     safety_rules = load_safety_rules(csv_safety_flags)
     hits, _ = evaluate_safety_flags(kcl_items, khq_items, safety_rules, extras=extras or {})
     safety_head = ""
