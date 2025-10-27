@@ -136,6 +136,24 @@ const LQ_DISPLAY_ORDER = [
   "HB-007",          // No.15 社会とのつながり (相談)
 ];
 
+// --- KHQ 生値をPythonへ渡すためのID一覧 ---
+const KHQ_IDS = [
+  "LQ-HEALTH","LQ-SATIS","KCL-12","KCL-13","KCL-14","KCL-11","KCL-7B",
+  "KCL-8B","KCL-9B","KCL-18","KCL-20","LQ-SMOKE","KCL-16","HB-008","HB-007"
+];
+
+// --- answers から KHQ の“そのままの値”を抜き出す ---
+function makeKhqFlags(answers) {
+  const out = {};
+  for (const id of KHQ_IDS) {
+    if (Object.prototype.hasOwnProperty.call(answers, id)) {
+      const v = answers[id];
+      if (v !== null && v !== undefined && v !== "") out[id] = v;
+    }
+  }
+  return out;
+}
+
 function calcBMI(h_cm, w_kg){
   const h = Number(h_cm)/100, w = Number(w_kg);
   if(!h || !w) return null;
@@ -177,9 +195,6 @@ function makeKclOn(answers){
 function makeKhqFlags(_answers){
   return {}; // 例: {5:true} を立てたいときだけ実装
 }
-
-
-
 
 function bySections(list){
   const map={}; list.forEach(q=>{ (map[q.section]=map[q.section]||[]).push(q); });
@@ -929,6 +944,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
