@@ -191,11 +191,6 @@ function makeKclOn(answers){
   return Array.from(new Set(on)).sort((a,b)=>a-b);
 }
 
-// KHQ フラグ（今は未使用なら空でOK）
-function makeKhqFlags(_answers){
-  return {}; // 例: {5:true} を立てたいときだけ実装
-}
-
 function bySections(list){
   const map={}; list.forEach(q=>{ (map[q.section]=map[q.section]||[]).push(q); });
   return Object.entries(map).map(([name,items])=>({name,items}));
@@ -944,6 +939,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
