@@ -371,6 +371,11 @@ def build_feedback(
     if t:
         parts.append(t.replace("{KCL総合点}", str(k_scores["総合点"])))
 
+    mt20 = alias_metric("KCL_20項目", kcl_repo.df)
+    t20 = kcl_repo.get_text(mt20, age_group, lv_kcl["KCL_20項目"], sex)
+    # t20 = kcl_repo.get_text("KCL_20項目", age_group, lv_kcl["KCL_20項目"], sex)
+    if t20:
+        parts.append(t20.replace("{KCL20項目}", str(k_scores["20項目"])))
 
     for mt in pick_top_domains(lv_kcl, k_scores):
         mt_alias = alias_metric(mt, kcl_repo.df)
@@ -379,11 +384,6 @@ def build_feedback(
         if tt:
             parts.append(tt)
 
-    mt20 = alias_metric("KCL_20項目", kcl_repo.df)
-    t20 = kcl_repo.get_text(mt20, age_group, lv_kcl["KCL_20項目"], sex)
-    # t20 = kcl_repo.get_text("KCL_20項目", age_group, lv_kcl["KCL_20項目"], sex)
-    if t20:
-        parts.append(t20.replace("{KCL20項目}", str(k_scores["20項目"])))
 
     for qi, val in sorted(khq_items.items()):
         if not val:
