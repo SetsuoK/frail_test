@@ -64,9 +64,11 @@ def _to_py_dict(x):
     if x is None:
         return {}
     try:
-        return dict(x)
+        # PyProxy を Python 辞書に変換する .to_py() を試す
+        return x.to_py()
     except Exception:
         try:
+            # 従来のフォールバック
             return {k: x[k] for k in x.keys()}
         except Exception:
             return {}
@@ -141,6 +143,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 
   </body>
 </html>
+
 
 
 
