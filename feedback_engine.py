@@ -24,8 +24,35 @@ DOMAIN_PRIORITY = {
     "KCL_IADL(日常生活関連動作)": 1,
     "KCL_抑うつ": 1,
 }
+
+# 例: KHQ ID→CSVの metric_type への明示マップ（※要実データに合わせて編集）
+KHQ_ID_TO_METRIC = {
+    "LQ-HEALTH": "KHQ_健康状態",
+    "LQ-SATIS":  "KHQ_生活満足",
+    "LQ-SMOKE":  "KHQ_喫煙",
+    "KCL-11":    "KHQ_体重変化",      # KHQ側で使うならここに置く（KCL側で処理するなら外す）
+    "KCL-12":    "KHQ_食習慣",
+    "KCL-13":    "KHQ_口腔_咀嚼",
+    "KCL-14":    "KHQ_口腔_嚥下",
+    "KCL-16":    "KHQ_外出頻度",
+    "KCL-18":    "KHQ_認知_物忘れ",
+    "KCL-20":    "KHQ_認知_見当識",
+    "HB-007":    "KHQ_相談相手",
+    "HB-008":    "KHQ_つきあい",
+    "KCL-7B":    "KHQ_歩行速度",
+    "KCL-8B":    "KHQ_転倒歴",
+    "KCL-9B":    "KHQ_運動習慣",
+    # 必要に応じて追記
+}
 MAX_DOMAIN_SNIPPETS = 3
 SEVERITY_ORDER = {"RED": 2, "YELLOW": 1}
+
+def _determine_khq_level(qid: str, val) -> str:
+    """
+    値→リスクレベルの仮ルール（まずは全て「注意」にしておき、後で詰める）
+    """
+    # ここに個別ルール（例: 喫煙=改善要、満足=正常…）を段階的に入れていく
+    return "注意"
 
 def alias_metric(mt: str, repo_df) -> str:
     mts = set(repo_df["metric_type"].astype(str).str.strip().unique())
