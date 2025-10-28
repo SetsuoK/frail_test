@@ -75,7 +75,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     # JS -> Py に変換
     kcl_on_set = _to_py_set(kcl_on)
     kcl_items = {i: (1 if i in kcl_on_set else 0) for i in range(1, 26)}
-    khq_dict = _to_py_dict(khq_flags)
+    khq_dict = _to_py_dict(khq_flags) or {}
 
     # build_feedback の受け取り可能な引数名を自動検出
     sig = inspect.signature(build_feedback)
@@ -94,7 +94,9 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
     if kcl_key:
         kwargs[kcl_key] = kcl_items
     if khq_key:
-        kwargs[khq_key] = {int(k): bool(v) for k, v in khq_dict.items()}
+        #kwargs[khq_key] = {int(k): bool(v) for k, v in khq_dict.items()}
+        # ★ 数値化せず、キーは“そのまま文字列”で渡す
+        kwargs[khq_key] = {str(k): v for k, v in khq_dict.items()}
 
     # CSV パスは存在するキーにだけ渡す
     csv_args = {
@@ -139,6 +141,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 
   </body>
 </html>
+
 
 
 
