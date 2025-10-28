@@ -358,7 +358,7 @@ def build_feedback(
     age_group: str,
     sex: str,
     kcl_items: Dict[int, int],
-    khq_items: Dict[int, bool],
+    khq_items: Dict[str, str],
     csv_kcl_templates: str,
     csv_khq_templates: str,
     csv_safety_flags: str,
