@@ -681,7 +681,7 @@ async function onClickGenerate() {
                 .split(" ")[0],           // 「青年期（…」→「青年期」
      sex: answers["LQ-SEX"] || "女",
       kclOnArray: kclOn,
-      khq_items: JSON.parse(JSON.stringify(khqFlags)),
+      khq_flags: JSON.parse(JSON.stringify(khqFlags)),
       extras: {} // 例: {"khq10_falls_count": 0}
     });
 
@@ -939,6 +939,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
