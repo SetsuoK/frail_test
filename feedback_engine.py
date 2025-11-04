@@ -440,6 +440,8 @@ def build_feedback(
         mt_alias = alias_metric(mt, kcl_repo.df)
         tt = kcl_repo.get_text(mt_alias, age_group, lv_kcl[mt], sex)
         # tt = kcl_repo.get_text(mt, age_group, lv_kcl[mt], sex)
+
+        print(f""kcl_gettext from {mt),sex)
         if tt:
             parts.append(tt)
 
