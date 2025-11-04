@@ -440,11 +440,11 @@ def build_feedback(
         mt_alias = alias_metric(mt, kcl_repo.df)
         tt = kcl_repo.get_text(mt_alias, age_group, lv_kcl[mt], sex)
         # tt = kcl_repo.get_text(mt, age_group, lv_kcl[mt], sex)
-
-        print(f"kcl_gettext from {mt),{tt}")
+        
+        print("[PY_KCL] mt :",mt)
+        print("[PY GetText:",tt)
         if tt:
             parts.append(tt)
-
 
     for qi, val in sorted(khq_items.items()):
         if not val:
