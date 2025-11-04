@@ -267,6 +267,12 @@ class TemplateRepo:
     #         if txt: return txt
     #     return None
     def get_text(self, metric_type: str, age_group: str, risk_level: str, sex: str):
+
+        print("[Get_TEXT]metric_type:",metric_type)
+        print("[Get_TEXT]age_group:",age_group)
+        print("[Get_TEXT]risk_level:",risk_level)
+        print("[Get_TEXT]sex:",sex)
+        
         import math
         # import pandas as pd
     
