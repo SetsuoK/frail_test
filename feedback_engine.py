@@ -21,7 +21,7 @@ DOMAIN_PRIORITY = {
     "KCL_口腔": 2,
     "KCL_認知": 2,
     "KCL_閉じこもり": 2,
-    "KCL_IADL(日常生活関連動作)": 1,
+    "KCL_IADL": 1,
     "KCL_抑うつ": 1,
 }
 
@@ -61,7 +61,7 @@ def alias_metric(mt: str, repo_df) -> str:
         # --- KCL ---
         "KCL_総合点": ["KCL_総合点", "KCL_総合"],
         "KCL_20項目": ["KCL_20項目", "KCL_20", "KCL20項目"],
-        "KCL_IADL": ["KCL_IADL(日常生活関連動作)", "KCL_IADL"],
+        "KCL_IADL": ["KCL_IADL", "KCL_IADL"],
         "KCL_低栄養": ["KCL_低栄養", "KCL_栄養"],
         "KCL_抑うつ": ["KCL_抑うつ", "KCL_うつ"],
         # 必要に応じて追加
@@ -398,7 +398,7 @@ def build_feedback(
     lv_kcl = {
         "KCL_総合点": _lv("総合点"),
         "KCL_20項目": _lv("20項目"),
-        "KCL_IADL(日常生活関連動作)": _lv("IADL"),
+        "KCL_IADL": _lv("IADL"),
         "KCL_運動器": _lv("運動器"),
         "KCL_低栄養": _lv("低栄養"),
         "KCL_口腔": _lv("口腔"),
