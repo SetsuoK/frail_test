@@ -441,7 +441,7 @@ def build_feedback(
         tt = kcl_repo.get_text(mt_alias, age_group, lv_kcl[mt], sex)
         # tt = kcl_repo.get_text(mt, age_group, lv_kcl[mt], sex)
 
-        print(f""kcl_gettext from {mt),sex)
+        print(f"kcl_gettext from {mt),{tt}")
         if tt:
             parts.append(tt)
 
