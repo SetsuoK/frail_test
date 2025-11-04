@@ -44,7 +44,7 @@ KHQ_ID_TO_METRIC = {
     "KCL-9B":    "KHQ_運動習慣",
     # 必要に応じて追記
 }
-MAX_DOMAIN_SNIPPETS = 3
+MAX_DOMAIN_SNIPPETS = 5
 SEVERITY_ORDER = {"RED": 2, "YELLOW": 1}
 
 def _determine_khq_level(qid: str, val) -> str:
