@@ -338,6 +338,10 @@ class TemplateRepo:
                 if pair not in candidates:
                     candidates.append(pair)
 
+        print("df["metric_type"] =",df["metric_type"] )
+        print("df["risk_level"] =",df["risk_level"] )
+        print("df["age_norm"] =",df["age_norm"] )
+        print("df["sex_norm"] =",df["sex_norm"] )
     
         for a, s in candidates:
             q = df[
@@ -348,6 +352,7 @@ class TemplateRepo:
             ]
             if not q.empty:
                 txt = str(q.iloc[0]["feedback_text"] or "").strip()
+                print("Get_text=",txt)
                 if txt:
                     return txt
     
