@@ -338,10 +338,10 @@ class TemplateRepo:
                 if pair not in candidates:
                     candidates.append(pair)
 
-        print("df["metric_type"] =",df["metric_type"] )
-        print("df["risk_level"] =",df["risk_level"] )
-        print("df["age_norm"] =",df["age_norm"] )
-        print("df["sex_norm"] =",df["sex_norm"] )
+        print("df[metric_type] =",df["metric_type"] )
+        print("df[risk_level] =",df["risk_level"] )
+        print("df[age_norm] =",df["age_norm"] )
+        print("df[sex_norm] =",df["sex_norm"] )
     
         for a, s in candidates:
             q = df[
