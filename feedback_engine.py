@@ -61,7 +61,7 @@ def alias_metric(mt: str, repo_df) -> str:
         # --- KCL ---
         "KCL_総合点": ["KCL_総合点", "KCL_総合"],
         "KCL_20項目": ["KCL_20項目", "KCL_20", "KCL20項目"],
-        "KCL_IADL(日常生活関連動作)": ["KCL_IADL(日常生活関連動作)", "KCL_IADL"],
+        "KCL_IADL": ["KCL_IADL(日常生活関連動作)", "KCL_IADL"],
         "KCL_低栄養": ["KCL_低栄養", "KCL_栄養"],
         "KCL_抑うつ": ["KCL_抑うつ", "KCL_うつ"],
         # 必要に応じて追加
@@ -132,7 +132,7 @@ def level_kcl(k: Dict[str, int], kcl_items: Dict[int, int]) -> Dict[str, str]:
     lv = {
         "KCL_総合点": _range_to_level(k["総合点"], KCL_THRESHOLDS["総合点"]),
         "KCL_20項目": _range_to_level(k["20項目"], KCL_THRESHOLDS["20項目"]),
-        "KCL_IADL(日常生活関連動作)": _range_to_level(k["IADL"], KCL_THRESHOLDS["IADL"]),
+        "KCL_IADL": _range_to_level(k["IADL"], KCL_THRESHOLDS["IADL"]),
         "KCL_運動器": _range_to_level(k["運動器"], KCL_THRESHOLDS["運動器"]),
         "KCL_低栄養": _range_to_level(k["低栄養"], KCL_THRESHOLDS["低栄養"]),
         "KCL_口腔": _range_to_level(k["口腔"], KCL_THRESHOLDS["口腔"]),
