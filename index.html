@@ -24,12 +24,15 @@
       // Pyodide 初期化（結果画面で使用）
       window.pyodideReady = (async () => {
         const pyodide = await loadPyodide();
-        await pyodide.loadPackage(["micropip","pandas"]);
+        await pyodide.loadPackage(["micropip","pandas","matplotlib"]);
 
         // PythonとCSVを仮想FSへ
         const fe = await fetch("./feedback_engine.py").then(r => r.text());
         pyodide.FS.writeFile("feedback_engine.py", fe);
 
+        const mi = await fetch("./make_image.py").then(r => r.text());
+        pyodide.FS.writeFile("make_image.py", mi);
+        
         async function loadCsv(url, path){
           const txt = await fetch(url).then(r => r.text());
           pyodide.FS.writeFile(path, txt);
@@ -53,6 +56,10 @@ print("feedback_engine import OK")
 from typing import Dict, List, Any
 from feedback_engine import build_feedback
 import inspect
+
+# 画像用
+import importlib
+make_image = importlib.import_module("make_image")
 
 def _to_py_set(x):
     try:
@@ -113,7 +120,30 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 
     text = build_feedback(**kwargs)
     return text
-        `);
+
+# 追加: 画像ビルド用の JS ラッパ
+def js_build_image(
+    age_group: str,
+    sex: str,
+    kcl_items: dict,
+    khq_items: dict,
+    csv_kcl_templates: str = "",
+    csv_khq_templates: str = "",
+    csv_safety_flags: str = "",
+    extras: dict = None
+) -> str:
+    # Py側では dict でOK。型は make_image.build_image に渡すだけ
+    return make_image.build_image(
+        age_group=age_group,
+        sex=sex,
+        kcl_items={int(k): int(v) for k,v in (kcl_items or {}).items()},
+        khq_items={str(k): str(v) for k,v in (khq_items or {}).items()},
+        csv_kcl_templates=csv_kcl_templates or "",
+        csv_khq_templates=csv_khq_templates or "",
+        csv_safety_flags=csv_safety_flags or "",
+        extras=extras or {}
+    )
+       `);
 
         return pyodide;
       })();
@@ -143,6 +173,7 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 
   </body>
 </html>
+
 
 
 
