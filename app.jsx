@@ -696,34 +696,40 @@ async function onClickGenerate() {
   }
 }
 
- async function generateAnswerImage() {
-    try {
-      const pyodide = await window.pyodideReady;
-      const pyFunc = pyodide.globals.get('js_build_image');
-      if (!pyFunc) throw new Error('Pyodide: js_build_image が見つかりません');
+async function generateAnswerImage() {
+  setImgStatus('loading');           // ← 追加
+  setImgSrc(null);                   // ← 追加（古い画像を一旦消す）
 
-      // 最小例: 回答から KCLのON辞書だけ適当に作る（実際は makeKclOn から組み立ててもOK）
-      const kclOn = makeKclOn(answers);        // [1..25]
-      const kclDict = {};
-      for (const no of kclOn) kclDict[no] = 1;
+  try {
+    const pyodide = await window.pyodideReady;
+    const pyFunc = pyodide.globals.get('js_build_image');
+    if (!pyFunc) throw new Error('Pyodide: js_build_image が見つかりません');
 
-      // KHQは未使用でも空でOK
-      const khq = {};
+    // KCLのON辞書（1..25をONにする簡易例）
+    const kclOn = makeKclOn(answers);
+    const kclDict = {};
+    for (const no of kclOn) kclDict[no] = 1;
 
-      // 年齢区分と性別（未回答時は仮で入れる）
-      const ageGroup = (answers["LQ-AGEGROUP"] || "後期高齢者")
-                        .replace(/[（）]/g, " ")
-                        .split(" ")[0];
-      const sex = answers["LQ-SEX"] || "女";
+    const khq = {};  // 今は未使用でOK
 
-      const result = pyFunc(ageGroup, sex, kclDict, khq, "", "", "", {});
-      const s = (result && typeof result.toString === 'function') ? result.toString() : String(result);
-      setImgSrc(s);
-    } catch (e) {
-      console.error(e);
-      setImgSrc(null);
-    }
+    // 年齢区分・性別（未回答時は仮値）
+    const ageGroup = (answers["LQ-AGEGROUP"] || "後期高齢者")
+                      .replace(/[（）]/g, " ")
+                      .split(" ")[0];
+    const sex = answers["LQ-SEX"] || "女";
+
+    const result = pyFunc(ageGroup, sex, kclDict, khq, "", "", "", {});
+    const s = (result && typeof result.toString === 'function') ? result.toString() : String(result);
+
+    setImgSrc(s);
+    setImgStatus('done');            // ← 追加：成功
+  } catch (e) {
+    console.error(e);
+    setImgSrc(null);
+    setImgStatus('error');           // ← 追加：失敗
   }
+}
+
    
   useEffect(() => { onClickGenerate(); }, []);  // 初回マウント時に自動生成
    // 「kcl_answers」画面に入ったら画像を生成する
@@ -829,15 +835,19 @@ async function onClickGenerate() {
         </div>
 
    　　  {/* 画像の挿入場所（ここを追加） */}
-        <div className="mb-3">
-         {imgSrc && <img src={imgSrc} className="max-w-full rounded-lg border shadow-sm" alt="結果サマリ画像" />}
-          {!imgSrc && imgStatus === 'loading' && <div className="text-gray-400 text-xs">画像を生成中...</div>}
-          {!imgSrc && imgStatus === 'error' && (
-            <div className="text-xs text-red-500">
-              画像生成に失敗しました。<button className="underline" onClick={generateAnswerImage}>再試行</button>
-            </div>
-          )}           
-        </div>
+         <div className="mb-3">
+           {imgSrc && (
+             <img src={imgSrc} alt="結果サマリ画像" className="max-w-full rounded-lg border shadow-sm" />
+           )}
+           {!imgSrc && imgStatus === 'loading' && (
+             <div className="text-gray-400 text-xs">画像を生成中...</div>
+           )}
+           {!imgSrc && imgStatus === 'error' && (
+             <div className="text-xs text-red-500">
+               画像生成に失敗しました。<button className="underline" onClick={generateAnswerImage}>再試行</button>
+             </div>
+           )}
+         </div>
          
         <div className="space-y-2 text-[12px] text-gray-700">
           {Object.entries(kclCategoryLabels).map(([key, label]) => {
@@ -990,6 +1000,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
