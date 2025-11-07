@@ -59,6 +59,7 @@ import inspect
 
 # 画像用
 import importlib
+from pyodide.ffi import to_py   # ★追加：JsProxy→Pythonへ変換するユーティリティ
 make_image = importlib.import_module("make_image")
 
 def _to_py_set(x):
@@ -125,19 +126,47 @@ def js_build_feedback(age_group: str, sex: str, kcl_on: list, khq_flags: dict, e
 def js_build_image(
     age_group: str,
     sex: str,
-    kcl_items: dict,
-    khq_items: dict,
+    kcl_items,
+    khq_items,
     csv_kcl_templates: str = "",
     csv_khq_templates: str = "",
     csv_safety_flags: str = "",
-    extras: dict = None
+    extras=None
 ) -> str:
-    # Py側では dict でOK。型は make_image.build_image に渡すだけ
+    # ★ここで JS から来る JsProxy / Object を Python の dict に変換
+    try:
+        kcl_items = to_py(kcl_items) if kcl_items is not None else {}
+    except Exception:
+        kcl_items = {}
+    try:
+        khq_items = to_py(khq_items) if khq_items is not None else {}
+    except Exception:
+        khq_items = {}
+    try:
+        extras = to_py(extras) if extras is not None else {}
+    except Exception:
+        extras = {}
+
+    # ★型をガッチリ正規化（キー→int、値→int/str）
+    if not isinstance(kcl_items, dict):
+        try:
+            kcl_items = dict(kcl_items)
+        except Exception:
+            kcl_items = {}
+    if not isinstance(khq_items, dict):
+        try:
+            khq_items = dict(khq_items)
+        except Exception:
+            khq_items = {}
+
+    kcl_items = {int(str(k)): int(str(v)) for k, v in (kcl_items or {}).items()}
+    khq_items = {str(k): str(v) for k, v in (khq_items or {}).items()}
+
     return make_image.build_image(
         age_group=age_group,
         sex=sex,
-        kcl_items={int(k): int(v) for k,v in (kcl_items or {}).items()},
-        khq_items={str(k): str(v) for k,v in (khq_items or {}).items()},
+        kcl_items=kcl_items,
+        khq_items=khq_items,
         csv_kcl_templates=csv_kcl_templates or "",
         csv_khq_templates=csv_khq_templates or "",
         csv_safety_flags=csv_safety_flags or "",
@@ -173,6 +202,7 @@ def js_build_image(
 
   </body>
 </html>
+
 
 
 
