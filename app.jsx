@@ -779,7 +779,8 @@ async function generateAnswerImage() {
           allQuestions={QUESTIONS}
           answers={answers}
         />
-       {/* 
+         
+         {/* 
       <div className="mb-3 flex justify-center">
         {imgSrc ? (
           <img
@@ -794,12 +795,11 @@ async function generateAnswerImage() {
       */}
          
          <div className="flex gap-2 mt-4">
-          <button className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50"
-            onClick={() => setResultView('summary')}>
-            サマリーに戻る
-          </button>
-        </div>
-         
+            <button className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50"
+               onClick={() => setResultView('summary')}>
+               サマリーに戻る
+            </button>
+         </div>
       </div>
     );
   }
@@ -858,7 +858,7 @@ async function generateAnswerImage() {
              </div>
            )}
          </div>
-    {/*       
+         {/*       
         <div className="space-y-2 text-[12px] text-gray-700">
           {Object.entries(kclCategoryLabels).map(([key, label]) => {
             const score = scores.kclScores[key];
@@ -878,11 +878,11 @@ async function generateAnswerImage() {
           })}
         </div>
    */}
-        <div className="border-t border-gray-200 mt-3 pt-2 space-y-1 text-sm">
-          <div className="flex justify-between font-semibold">
-            <span>うつを除く20項目の合計</span>
-            <span>{scores.kclTotalNoDepression} 点</span>
-          </div>
+         <div className="border-t border-gray-200 mt-3 pt-2 space-y-1 text-sm">
+            <div className="flex justify-between font-semibold">
+               <span>うつを除く20項目の合計</span>
+               <span>{scores.kclTotalNoDepression} 点</span>
+            </div>
           <div className="flex justify-between font-bold text-blue-600">
             <span>総合点 (全25項目)</span>
             <span>{scores.kclTotal} 点</span>
@@ -1011,6 +1011,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
