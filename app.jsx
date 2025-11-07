@@ -855,24 +855,24 @@ async function generateAnswerImage() {
            )}
          </div>
          
-        <div className="space-y-2 text-[12px] text-gray-700">
-          {Object.entries(kclCategoryLabels).map(([key, label]) => {
-            const score = scores.kclScores[key];
-            const maxScore = maxScores.kcl[key];
-            const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
-            return (
-              <div key={key}>
-                <div className="flex justify-between items-center">
-                  <span>{label}</span>
-                  <span className="font-semibold">{score} / {maxScore} 点</span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
-                  <div className="h-full bg-blue-600" style={{ width: `${percentage}%` }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+  //      <div className="space-y-2 text-[12px] text-gray-700">
+  //        {Object.entries(kclCategoryLabels).map(([key, label]) => {
+  //          const score = scores.kclScores[key];
+  //          const maxScore = maxScores.kcl[key];
+  //          const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
+  //          return (
+  //            <div key={key}>
+  //              <div className="flex justify-between items-center">
+  //                <span>{label}</span>
+  //                <span className="font-semibold">{score} / {maxScore} 点</span>
+  //              </div>
+  //              <div className="h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
+  //                <div className="h-full bg-blue-600" style={{ width: `${percentage}%` }} />
+  //              </div>
+  //           </div>
+  //          );
+  //        })}
+  //      </div>
         <div className="border-t border-gray-200 mt-3 pt-2 space-y-1 text-sm">
           <div className="flex justify-between font-semibold">
             <span>うつを除く20項目の合計</span>
@@ -1006,6 +1006,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
