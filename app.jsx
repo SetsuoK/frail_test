@@ -665,8 +665,9 @@ function ResultPanel({ answers, risks, bmi, onBack, scores, maxScores }){
   const [fbText, setFbText] = useState("");
   const [fbLoading, setFbLoading] = useState(false);
   const totalRisks = sum(risks);
+  const [imgSrc, setImgSrc] = useState(null);
 
-  // === Pyodideを使ってフィードバックを生成 ===
+
 // === Pyodideを使ってフィードバックを生成 ===
 async function onClickGenerate() {
   setFbLoading(true);
@@ -694,6 +695,36 @@ async function onClickGenerate() {
     setFbLoading(false);
   }
 }
+
+ async function generateAnswerImage() {
+    try {
+      const pyodide = await window.pyodideReady;
+      const pyFunc = pyodide.globals.get('js_build_image');
+      if (!pyFunc) throw new Error('Pyodide: js_build_image が見つかりません');
+
+      // 最小例: 回答から KCLのON辞書だけ適当に作る（実際は makeKclOn から組み立ててもOK）
+      const kclOn = makeKclOn(answers);        // [1..25]
+      const kclDict = {};
+      for (const no of kclOn) kclDict[no] = 1;
+
+      // KHQは未使用でも空でOK
+      const khq = {};
+
+      // 年齢区分と性別（未回答時は仮で入れる）
+      const ageGroup = (answers["LQ-AGEGROUP"] || "後期高齢者")
+                        .replace(/[（）]/g, " ")
+                        .split(" ")[0];
+      const sex = answers["LQ-SEX"] || "女";
+
+      const result = pyFunc(ageGroup, sex, kclDict, khq, "", "", "", {});
+      const s = (result && typeof result.toString === 'function') ? result.toString() : String(result);
+      setImgSrc(s);
+    } catch (e) {
+      console.error(e);
+      setImgSrc(null);
+    }
+  }
+   
   useEffect(() => { onClickGenerate(); }, []);  // 初回マウント時に自動生成
 
   const hints=[];
@@ -729,11 +760,28 @@ async function onClickGenerate() {
   };
 
   if (resultView === 'kcl_answers') {
+     // このビューに入ったら一度だけ画像生成
+     useEffect(() => { generateAnswerImage(); /* eslint-disable-next-line */ }, []);
     return (
       <div className="pb-6">
         <div className="text-lg font-semibold mb-1">回答一覧</div>
         <div className="text-[11px] text-gray-500 mb-3">あなたが回答した内容の一覧です。</div>
-        
+
+       {/* 画像の挿入場所（ここを追加） */}
+        <div className="mb-3">
+           
+          {imgSrc ? (
+            <img src={imgSrc} alt="回答サマリ図" className="w-full border rounded-lg" />
+          ) : (
+            <button
+              className="px-3 py-1.5 rounded-lg border border-gray-300 text-[12px] hover:bg-gray-50"
+              onClick={generateAnswerImage}
+            >
+              画像を生成
+            </button>
+          )}
+        </div>
+         
         <AnswerSummaryTable
           title="フレイル基本チェックリスト 回答"
           questionIds={KCL_DISPLAY_ORDER}
@@ -940,6 +988,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
