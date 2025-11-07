@@ -830,12 +830,13 @@ async function onClickGenerate() {
 
    　　  {/* 画像の挿入場所（ここを追加） */}
         <div className="mb-3">
-           
-            {imgSrc ? (
-              <img src={imgSrc} alt="回答サマリ図" className="w-full border rounded-lg" />
-            ) : (
-              <div className="text-gray-400 text-xs">画像を生成中...</div>
-            )}
+         {imgSrc && <img src={imgSrc} className="max-w-full rounded-lg border shadow-sm" alt="結果サマリ画像" />}
+          {!imgSrc && imgStatus === 'loading' && <div className="text-gray-400 text-xs">画像を生成中...</div>}
+          {!imgSrc && imgStatus === 'error' && (
+            <div className="text-xs text-red-500">
+              画像生成に失敗しました。<button className="underline" onClick={generateAnswerImage}>再試行</button>
+            </div>
+          )}           
         </div>
          
         <div className="space-y-2 text-[12px] text-gray-700">
@@ -989,6 +990,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
