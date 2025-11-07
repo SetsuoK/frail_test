@@ -32,6 +32,11 @@
 
         const mi = await fetch("./make_image.py").then(r => r.text());
         pyodide.FS.writeFile("make_image.py", mi);
+
+        // ▼▼ 追加：日本語フォントをバイナリでFSに書き込む ▼▼
+        const fontBuf = await fetch("./fonts/NotoSansJP-Regular.ttf").then(r => r.arrayBuffer());
+        pyodide.FS.writeFile("NotoSansJP-Regular.ttf", new Uint8Array(fontBuf));
+        // ▲▲ ここまで追加 ▲▲
         
         async function loadCsv(url, path){
           const txt = await fetch(url).then(r => r.text());
@@ -196,6 +201,7 @@ def js_build_image(
 
   </body>
 </html>
+
 
 
 
