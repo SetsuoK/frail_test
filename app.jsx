@@ -779,24 +779,27 @@ async function generateAnswerImage() {
           allQuestions={QUESTIONS}
           answers={answers}
         />
-        
-     // <div className="mb-3 flex justify-center">
-     //   {imgSrc ? (
-     //     <img
-     //       src={imgSrc}
-     //       alt="結果サマリ画像"
-     //       className="max-w-full rounded-lg border shadow-sm"
-     //     />
-     //   ) : (
-      //    <div className="text-gray-400 text-xs">画像を生成中...</div>
-      //  )}
-      //</div>
+       {/* 
+      <div className="mb-3 flex justify-center">
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt="結果サマリ画像"
+            className="max-w-full rounded-lg border shadow-sm"
+          />
+        ) : (
+         <div className="text-gray-400 text-xs">画像を生成中...</div>
+        )}
+      </div>
+      */}
+         
          <div className="flex gap-2 mt-4">
           <button className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50"
             onClick={() => setResultView('summary')}>
             サマリーに戻る
           </button>
         </div>
+         
       </div>
     );
   }
@@ -820,6 +823,7 @@ async function generateAnswerImage() {
             サマリーに戻る
           </button>
         </div>
+         
       </div>
     );
   }
@@ -854,25 +858,26 @@ async function generateAnswerImage() {
              </div>
            )}
          </div>
-         
-  //      <div className="space-y-2 text-[12px] text-gray-700">
-  //        {Object.entries(kclCategoryLabels).map(([key, label]) => {
-  //          const score = scores.kclScores[key];
-  //          const maxScore = maxScores.kcl[key];
-  //          const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
-  //          return (
-  //            <div key={key}>
-  //              <div className="flex justify-between items-center">
-  //                <span>{label}</span>
-  //                <span className="font-semibold">{score} / {maxScore} 点</span>
-  //              </div>
-  //              <div className="h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
-  //                <div className="h-full bg-blue-600" style={{ width: `${percentage}%` }} />
-  //              </div>
-  //           </div>
-  //          );
-  //        })}
-  //      </div>
+    {/*       
+        <div className="space-y-2 text-[12px] text-gray-700">
+          {Object.entries(kclCategoryLabels).map(([key, label]) => {
+            const score = scores.kclScores[key];
+            const maxScore = maxScores.kcl[key];
+            const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
+            return (
+              <div key={key}>
+                <div className="flex justify-between items-center">
+                  <span>{label}</span>
+                  <span className="font-semibold">{score} / {maxScore} 点</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
+                  <div className="h-full bg-blue-600" style={{ width: `${percentage}%` }} />
+                </div>
+             </div>
+            );
+          })}
+        </div>
+   */}
         <div className="border-t border-gray-200 mt-3 pt-2 space-y-1 text-sm">
           <div className="flex justify-between font-semibold">
             <span>うつを除く20項目の合計</span>
@@ -1006,6 +1011,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
