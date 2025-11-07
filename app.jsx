@@ -767,21 +767,6 @@ async function onClickGenerate() {
         <div className="text-lg font-semibold mb-1">回答一覧</div>
         <div className="text-[11px] text-gray-500 mb-3">あなたが回答した内容の一覧です。</div>
 
-       {/* 画像の挿入場所（ここを追加） */}
-        <div className="mb-3">
-           
-          {imgSrc ? (
-            <img src={imgSrc} alt="回答サマリ図" className="w-full border rounded-lg" />
-          ) : (
-            <button
-              className="px-3 py-1.5 rounded-lg border border-gray-300 text-[12px] hover:bg-gray-50"
-              onClick={generateAnswerImage}
-            >
-              画像を生成
-            </button>
-          )}
-        </div>
-         
         <AnswerSummaryTable
           title="フレイル基本チェックリスト 回答"
           questionIds={KCL_DISPLAY_ORDER}
@@ -837,6 +822,22 @@ async function onClickGenerate() {
                 回答一覧表
             </button>
         </div>
+
+   　　  {/* 画像の挿入場所（ここを追加） */}
+        <div className="mb-3">
+           
+          {imgSrc ? (
+            <img src={imgSrc} alt="回答サマリ図" className="w-full border rounded-lg" />
+          ) : (
+            <button
+              className="px-3 py-1.5 rounded-lg border border-gray-300 text-[12px] hover:bg-gray-50"
+              onClick={generateAnswerImage}
+            >
+              画像を生成
+            </button>
+          )}
+        </div>
+         
         <div className="space-y-2 text-[12px] text-gray-700">
           {Object.entries(kclCategoryLabels).map(([key, label]) => {
             const score = scores.kclScores[key];
@@ -988,6 +989,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
