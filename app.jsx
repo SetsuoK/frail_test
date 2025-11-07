@@ -831,16 +831,11 @@ async function onClickGenerate() {
    　　  {/* 画像の挿入場所（ここを追加） */}
         <div className="mb-3">
            
-          {imgSrc ? (
-            <img src={imgSrc} alt="回答サマリ図" className="w-full border rounded-lg" />
-          ) : (
-            <button
-              className="px-3 py-1.5 rounded-lg border border-gray-300 text-[12px] hover:bg-gray-50"
-              onClick={generateAnswerImage}
-            >
-              画像を生成
-            </button>
-          )}
+            {imgSrc ? (
+              <img src={imgSrc} alt="回答サマリ図" className="w-full border rounded-lg" />
+            ) : (
+              <div className="text-gray-400 text-xs">画像を生成中...</div>
+            )}
         </div>
          
         <div className="space-y-2 text-[12px] text-gray-700">
@@ -994,6 +989,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
