@@ -727,7 +727,7 @@ async function onClickGenerate() {
    
   useEffect(() => { onClickGenerate(); }, []);  // 初回マウント時に自動生成
    // 「kcl_answers」画面に入ったら画像を生成する
-　useEffect(() => {if (resultView === 'kcl_answers') {generateAnswerImage();}}, [resultView]);
+　useEffect(() => {if (resultView === 'summary') {generateAnswerImage();}}, [resultView]);
 
   const hints=[];
   if((risks["運動"]||0)>=3) hints.push("運動の項目に複数の注意。転倒予防の運動や短時間の散歩から始めましょう。");
@@ -989,6 +989,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
