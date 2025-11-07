@@ -666,7 +666,7 @@ function ResultPanel({ answers, risks, bmi, onBack, scores, maxScores }){
   const [fbLoading, setFbLoading] = useState(false);
   const totalRisks = sum(risks);
   const [imgSrc, setImgSrc] = useState(null);
-
+  const [imgStatus, setImgStatus] = useState('idle'); // 'idle' | 'loading' | 'done' | 'error'
 
 // === Pyodideを使ってフィードバックを生成 ===
 async function onClickGenerate() {
@@ -675,7 +675,7 @@ async function onClickGenerate() {
   try {
     const kclOn = makeKclOn(answers);        // 1..25 のON配列
     const khqFlags = makeKhqFlags(answers);  // {5:true} など（なければ {}）
-    + console.log("[JS] khqFlags before call:", khqFlags);
+    console.log("[JS] khqFlags before call:", khqFlags);
     const txt = await generateFeedbackWithPyodide({
     age_group: (answers["LQ-AGEGROUP"] || "後期高齢者")
                 .replace(/[（）]/g, " ")  // カッコ除去（念のため）
@@ -990,6 +990,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
