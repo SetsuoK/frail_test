@@ -780,17 +780,23 @@ async function generateAnswerImage() {
           answers={answers}
         />
         
-      <div className="mb-3 flex justify-center">
-        {imgSrc ? (
-          <img
-            src={imgSrc}
-            alt="結果サマリ画像"
-            className="max-w-full rounded-lg border shadow-sm"
-          />
-        ) : (
-          <div className="text-gray-400 text-xs">画像を生成中...</div>
-        )}
-      </div>
+     // <div className="mb-3 flex justify-center">
+     //   {imgSrc ? (
+     //     <img
+     //       src={imgSrc}
+     //       alt="結果サマリ画像"
+     //       className="max-w-full rounded-lg border shadow-sm"
+     //     />
+     //   ) : (
+      //    <div className="text-gray-400 text-xs">画像を生成中...</div>
+      //  )}
+      //</div>
+         <div className="flex gap-2 mt-4">
+          <button className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50"
+            onClick={() => setResultView('summary')}>
+            サマリーに戻る
+          </button>
+        </div>
       </div>
     );
   }
@@ -1000,6 +1006,7 @@ window.renderApp = function(mountEl){
   const root = ReactDOM.createRoot(el);
   root.render(<App />);
 };
+
 
 
 
